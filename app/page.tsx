@@ -6,12 +6,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import Link from 'next/link';
 import { Youtube, Github, BookOpen, Instagram, Megaphone, Handshake } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { PostCard } from '@/components/features/blog/PostCard';
-
+import { TagSection } from './_components/TagSection';
 const mockPosts = [
   {
     id: '1',
@@ -19,8 +18,9 @@ const mockPosts = [
     description: 'Next.js 13과 Notion API를 활용하여 개인 블로그를 만드는 방법을 알아봅니다.',
     coverImage: 'https://picsum.photos/800/400',
     tags: [
-      { id: '1', name: 'Next.js' },
-      { id: '2', name: 'React' },
+      // 타입 에러로 count 추가
+      { id: '1', name: 'Next.js', count: 1 },
+      { id: '2', name: 'React', count: 1 },
     ],
     authors: '짐코딩',
     date: '2024-02-01',
@@ -31,8 +31,9 @@ const mockPosts = [
     description: 'TypeScript의 기본 문법과 실전에서 자주 사용되는 패턴들을 살펴봅니다.',
     coverImage: 'https://picsum.photos/800/401',
     tags: [
-      { id: '3', name: 'TypeScript' },
-      { id: '4', name: 'JavaScript' },
+      // 타입 에러로 count 추가
+      { id: '3', name: 'TypeScript', count: 1 },
+      { id: '4', name: 'JavaScript', count: 1 },
     ],
     authors: '짐코딩',
     date: '2024-01-15',
@@ -40,12 +41,12 @@ const mockPosts = [
 ];
 
 const mockTags = [
-  { name: '전체', count: 20 },
-  { name: 'html', count: 10 },
-  { name: 'css', count: 5 },
-  { name: 'javascript', count: 3 },
-  { name: 'React', count: 3 },
-  { name: 'Next.js', count: 2 },
+  { id: 'all', name: '전체', count: 20 },
+  { id: 'html', name: 'html', count: 10 },
+  { id: 'css', name: 'css', count: 5 },
+  { id: 'javascript', name: 'javascript', count: 3 },
+  { id: 'react', name: 'React', count: 3 },
+  { id: 'nextjs', name: 'Next.js', count: 2 },
 ];
 
 const socialLinks = [
@@ -106,21 +107,9 @@ export default function Home() {
       <div className="grid grid-cols-[200px_1fr_220px] gap-6">
         {/* 좌측 사이드바 */}
         <aside>
-          <Card>
-            <CardHeader>태그목록</CardHeader>
-            <CardContent>
-              <div className="flex flex-col gap-3">
-                {mockTags.map((tag) => (
-                  <Link href={`?tag=${tag.name}`} key={tag.name}>
-                    <div className="hover:bg-muted-foreground/10 text-muted-foreground flex items-center justify-between rounded-md p-1.5 text-sm transition-colors">
-                      <span>{tag.name}</span>
-                      <span>{tag.count}</span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          {/* 태그 목록 컴포넌트 */}
+          {/* 아이디가 넘어가지 않아 mockTags에 id 추가 */}
+          <TagSection tags={mockTags} />
         </aside>
         <div className="space-y-8">
           {/* 정렬 추가  */}
