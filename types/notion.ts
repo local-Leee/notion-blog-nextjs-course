@@ -16,19 +16,3 @@ export interface NotionPost {
   author?: string;
   date?: string;
 }
-
-export interface SocialLinks {
-  icon: LucideIcon;
-  href: string;
-}
-
-export interface ContactItems {
-  icon: LucideIcon;
-  title: string;
-  description: string;
-  mailto: {
-    email: string;
-    subject: string;
-    body: string;
-  };
-}

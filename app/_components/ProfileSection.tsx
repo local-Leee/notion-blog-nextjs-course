@@ -1,14 +1,28 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { SocialLinks } from '@/types/notion';
-import { Youtube, Github, BookOpen, Instagram, Megaphone, Handshake } from 'lucide-react';
+import { Youtube, Github, BookOpen, Instagram } from 'lucide-react';
 
-interface ProfileSectionProps {
-  socialLinks: SocialLinks[];
-}
+const socialLinks = [
+  {
+    icon: Youtube,
+    href: 'https://www.youtube.com/gymcoding',
+  },
+  {
+    icon: Github,
+    href: 'https://github.com/gymcoding',
+  },
+  {
+    icon: BookOpen,
+    href: 'https://www.inflearn.com/users/432199/@gymcoding',
+  },
+  {
+    icon: Instagram,
+    href: 'https://www.instagram.com/gymcoding',
+  },
+];
 
-export function ProfileSection({ socialLinks }: ProfileSectionProps) {
+export function ProfileSection() {
   return (
     <div>
       <Card>
