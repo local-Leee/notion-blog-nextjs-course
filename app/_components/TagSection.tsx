@@ -1,10 +1,10 @@
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import Link from 'next/link';
-import { NotionTag } from '@/types/notion';
+import { TagFilterItem } from '@/types/blog';
 
 // 태그 목록을 받아오는 타입. notion에서 가져온 태그 목록
 interface TagSectionProps {
-  tags: NotionTag[];
+  tags: TagFilterItem[];
 }
 
 // {tags} 받아온 props를 렌더링
