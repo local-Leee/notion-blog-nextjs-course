@@ -9,14 +9,85 @@ export const notion = new Client({
   auth: process.env.NOTION_TOKEN,
 });
 
-export const getPublishedPosts = async (tags?: string): Promise<Post[]> => {
+function getPostMetadata(page: PageObjectResponse): Post {
+  const { properties } = page;
+
+  const getCoverImage = (cover: PageObjectResponse['cover']) => {
+    if (!cover) return '';
+
+    switch (cover.type) {
+      case 'external':
+        return cover.external.url;
+      case 'file':
+        return cover.file.url;
+      default:
+        return '';
+    }
+  };
+
+  return {
+    id: page.id,
+    title: properties.Title.type === 'title' ? (properties.Title.title[0]?.plain_text ?? '') : '',
+    description:
+      properties.Description.type === 'rich_text'
+        ? (properties.Description.rich_text[0]?.plain_text ?? '')
+        : '',
+    coverImage: getCoverImage(page.cover),
+    tags:
+      properties.Tags.type === 'multi_select'
+        ? properties.Tags.multi_select.map((tag) => tag.name)
+        : [],
+    author:
+      properties.Author.type === 'people'
+        ? ((properties.Author.people[0] as PersonUserObjectResponse)?.name ?? '')
+        : '',
+    date: properties.Date.type === 'date' ? (properties.Date.date?.start ?? '') : '',
+    modifiedDate: page.last_edited_time,
+    slug:
+      properties.Slug.type === 'rich_text'
+        ? (properties.Slug.rich_text[0]?.plain_text ?? page.id)
+        : page.id,
+  };
+}
+
+export const getPostBySlug = async (
+  slug: string
+): Promise<{
+  markdown: string;
+  post: Post;
+}> => {
   const response = await notion.databases.query({
     database_id: process.env.NOTION_DATABASE_ID!,
     filter: {
-      property: 'Status',
-      select: {
-        equals: 'Published',
-      },
+      and: [
+        {
+          property: 'Slug',
+          rich_text: {
+            equals: slug,
+          },
+        },
+        {
+          property: 'Status',
+          select: {
+            equals: 'Published',
+          },
+        },
+      ],
+    },
+  });
+
+  return {
+    markdown: '',
+    post: getPostMetadata(response.results[0] as PageObjectResponse),
+  };
+
+  // return getPageMetadata(response);
+};
+
+export const getPublishedPosts = async (tag?: string): Promise<Post[]> => {
+  const response = await notion.databases.query({
+    database_id: process.env.NOTION_DATABASE_ID!,
+    filter: {
       and: [
         {
           property: 'Status',
@@ -24,12 +95,12 @@ export const getPublishedPosts = async (tags?: string): Promise<Post[]> => {
             equals: 'Published',
           },
         },
-        ...(tags && tags !== '전체'
+        ...(tag && tag !== '전체'
           ? [
               {
                 property: 'Tags',
                 multi_select: {
-                  contains: tags,
+                  contains: tag,
                 },
               },
             ]
@@ -44,48 +115,9 @@ export const getPublishedPosts = async (tags?: string): Promise<Post[]> => {
     ],
   });
 
-  // Notion 응답 객체를 Post 타입 배열로 변환
-  const posts: Post[] = response.results.map((page: any) => {
-    const properties = page.properties;
-    // title 추출
-    const title = properties?.Name?.title?.[0]?.plain_text || '';
-    // description 추출
-    const description = properties?.Description?.rich_text?.[0]?.plain_text || undefined;
-    // coverImage 추출 (cover가 있을 경우)
-    let coverImage: string | undefined = undefined;
-    if (page.cover) {
-      if (page.cover.type === 'external') coverImage = page.cover.external.url;
-      else if (page.cover.type === 'file') coverImage = page.cover.file.url;
-    }
-    // author 추출 (people 타입)
-    const author = properties?.Author?.people?.[0]?.name || undefined;
-    // date 추출 (date 타입)
-    const date = properties?.Date?.date?.start || undefined;
-    // tags 추출 (multi_select)
-    const tags = properties?.Tags?.multi_select?.map((tag: any) => tag.name) || undefined;
-    // modifiedDate 추출
-    const modifiedDate =
-      properties?.ModifierDate?.last_edited_time || page.last_edited_time || undefined;
-    // slug 생성 (title을 kebab-case로 변환)
-    const slug = title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)+/g, '');
-
-    return {
-      id: page.id,
-      title,
-      description,
-      coverImage,
-      author,
-      date,
-      tags,
-      modifiedDate,
-      slug,
-    };
-  });
-
-  return posts;
+  return response.results
+    .filter((page): page is PageObjectResponse => 'properties' in page)
+    .map(getPostMetadata);
 };
 
 export const getTags = async (): Promise<TagFilterItem[]> => {
