@@ -1,4 +1,3 @@
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -6,11 +5,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Youtube, Github, BookOpen, Instagram, Megaphone, Handshake } from 'lucide-react';
 import { PostCard } from '@/components/features/blog/PostCard';
 import { TagSection } from './_components/TagSection';
 import { ProfileSection } from './_components/ProfileSection';
 import { ContactSection } from './_components/ContactSection';
+import Link from 'next/link';
+
 const mockPosts = [
   {
     id: '1',
@@ -49,58 +49,6 @@ const mockTags = [
   { id: 'nextjs', name: 'Next.js', count: 2 },
 ];
 
-const socialLinks = [
-  {
-    icon: Youtube,
-    href: 'https://www.youtube.com/gymcoding',
-  },
-  {
-    icon: Github,
-    href: 'https://github.com/gymcoding',
-  },
-  {
-    icon: BookOpen,
-    href: 'https://www.inflearn.com/users/432199/@gymcoding',
-  },
-  {
-    icon: Instagram,
-    href: 'https://www.instagram.com/gymcoding',
-  },
-];
-
-const contactItems = [
-  {
-    icon: Megaphone,
-    title: '광고 및 제휴',
-    description: '브랜드 홍보, 컨텐츠 제작, 협업 제안',
-    mailto: {
-      email: 'bruce.lean17@gmail.com',
-      subject: '[광고/제휴] 제안',
-      body: '브랜드/제품명:\n제안 내용:\n기간:\n예산:',
-    },
-  },
-  {
-    icon: BookOpen,
-    title: '강의 문의',
-    description: '기술 강의, 워크샵, 세미나 진행',
-    mailto: {
-      email: 'bruce.lean17@gmail.com',
-      subject: '[강의] 문의',
-      body: '강의 주제:\n예상 인원:\n희망 일정:\n문의 내용:',
-    },
-  },
-  {
-    icon: Handshake,
-    title: '기타 문의',
-    description: '채용, 인터뷰, 기타 협업 제안',
-    mailto: {
-      email: 'bruce.lean17@gmail.com',
-      subject: '[기타] 문의',
-      body: '문의 종류:\n문의 내용:',
-    },
-  },
-];
-
 export default function Home() {
   return (
     <div className="container py-8">
@@ -130,14 +78,16 @@ export default function Home() {
           <div className="grid gap-4">
             {/* 블로그 카드 반복 */}
             {mockPosts.map((post) => (
-              <PostCard key={post.id} post={post} />
+              <Link href={`/blog/${post.id}`} key={post.id}>
+                <PostCard post={post} />
+              </Link>
             ))}
           </div>
         </div>
         {/* 우측 사이드바 */}
         <aside className="flex flex-col gap-6">
-          <ProfileSection socialLinks={socialLinks} />
-          <ContactSection contactItems={contactItems} />
+          <ProfileSection />
+          <ContactSection />
         </aside>
       </div>
     </div>
