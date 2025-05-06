@@ -10,8 +10,6 @@ import {
 } from '@/components/ui/select';
 import { useRouter, useSearchParams } from 'next/navigation';
 export const SortSelect = () => {
-  console.log('SortSelect');
-
   // useRouter 정렬 선택 시 url을 업데이트하기 위해 사용
   const router = useRouter();
 
@@ -22,8 +20,6 @@ export const SortSelect = () => {
 
   // 이벤트 핸들러 함수 정의
   const handleSort = (value: string) => {
-    console.log('value: ', value);
-
     // 현재 모든 파라미터를 가져온다
     // serchParams는 읽기전용이므로 toString()을 사용해 수정할 수 있도록 문자열로 만들고
     // 새로운 URLSearchParams 객체를 생성해서 set 등으로 값을 변경할 수 있게 한다.
