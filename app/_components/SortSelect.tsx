@@ -24,8 +24,16 @@ export const SortSelect = () => {
   const handleSort = (value: string) => {
     console.log('value: ', value);
 
+    // 현재 모든 파라미터를 가져온다
+    // serchParams는 읽기전용이므로 toString()을 사용해 수정할 수 있도록 문자열로 만들고
+    // 새로운 URLSearchParams 객체를 생성해서 set 등으로 값을 변경할 수 있게 한다.
+    const params = new URLSearchParams(searchParams.toString());
+    // sort 파라미터만 업데이트
+    params.set('sort', value);
+
     // router의 push 메서드를 이용해서 정렬 선택 시 url을 업데이트
-    router.push(`?sort=${value}`);
+    // 파라미터를 업데이트한 params를 쿼리 스트링으로 변환해서 추가
+    router.push(`?${params.toString()}`);
   };
 
   return (
