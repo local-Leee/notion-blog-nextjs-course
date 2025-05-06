@@ -89,7 +89,8 @@ export const getPostBySlug = async (
   // return getPageMetadata(response);
 };
 
-export const getPublishedPosts = async (tag?: string): Promise<Post[]> => {
+// 게시글 목록을 가져오는 함수
+export const getPublishedPosts = async (tag?: string, sort?: string): Promise<Post[]> => {
   const response = await notion.databases.query({
     database_id: process.env.NOTION_DATABASE_ID!,
     filter: {
@@ -115,7 +116,8 @@ export const getPublishedPosts = async (tag?: string): Promise<Post[]> => {
     sorts: [
       {
         property: 'Date',
-        direction: 'descending',
+        // 정렬 방식에 따라 정렬 순서를 결정
+        direction: sort === 'latest' ? 'descending' : 'ascending',
       },
     ],
   });

@@ -7,13 +7,19 @@ import { getPublishedPosts, getTags } from '@/lib/notion';
 import { Post } from '@/types/blog';
 import { SortSelect } from '@/app/_components/SortSelect';
 interface HomeProps {
-  searchParams: Promise<{ tag?: string }>;
+  // searchParams는 클라이언트에서 전달되는 쿼리 파라미터를 받는다.
+  searchParams: Promise<{ tag?: string; sort?: string }>;
 }
 
 export default async function Home({ searchParams }: HomeProps) {
-  const { tag } = await searchParams;
+  const { tag, sort } = await searchParams;
   const selectedTag = tag || '전체';
-  const [posts, tags] = await Promise.all([getPublishedPosts(selectedTag), getTags()]);
+  const selectedSort = sort || 'latest';
+  const [posts, tags] = await Promise.all([
+    // 목록을 가져오는 함수에 태그와 정렬 방식을 전달
+    getPublishedPosts(selectedTag, selectedSort),
+    getTags(),
+  ]);
 
   return (
     <div className="container py-8">
