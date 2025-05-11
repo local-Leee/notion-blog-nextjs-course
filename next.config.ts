@@ -18,6 +18,9 @@ const nextConfig: NextConfig = {
       {
         hostname: 'prod-files-secure.s3.us-west-2.amazonaws.com',
       },
+      {
+        hostname: 'www.notion.so', // 도메인 추가(노션 커버이미지 사용 시 에러 방지)
+      },
     ],
   },
   pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'mdx', 'md'],
