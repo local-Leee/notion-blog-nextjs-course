@@ -4,6 +4,9 @@ import { ContactSection } from '@/app/_components/ContactSection';
 import { getPublishedPosts, getTags } from '@/lib/notion';
 import { HeaderSection } from '@/app/_components/HeaderSection';
 import { PostList } from '@/components/features/blog/PostList';
+import { Suspense } from 'react';
+import Loading from './loading';
+
 interface BlogProps {
   // searchParams는 클라이언트에서 전달되는 쿼리 파라미터를 받는다.
   searchParams: Promise<{ tag?: string; sort?: string }>;
@@ -30,7 +33,9 @@ export default async function Blog({ searchParams }: BlogProps) {
           {/* 섹션 제목 */}
           <HeaderSection selectedTag={selectedTag} />
           {/* 블로그 카드 그리드 */}
-          <PostList posts={posts} />
+          <Suspense fallback={<Loading />}>
+            <PostList posts={posts} />
+          </Suspense>
         </div>
         {/* 우측 사이드바 */}
         <aside className="flex flex-col gap-6">
