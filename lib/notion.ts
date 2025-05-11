@@ -89,8 +89,21 @@ export const getPostBySlug = async (
   // return getPageMetadata(response);
 };
 
+interface GetPublishedPostsParams {
+  tag?: string;
+  sort?: string;
+  pageSize?: number;
+  startCursor?: string;
+}
+interface GetPublishedPostsResponse {
+  posts: Post[];
+  hasMore: boolean;
+  nextCursor: string | null;
+}
+
 // 게시글 목록을 가져오는 함수
-export const getPublishedPosts = async (tag?: string, sort?: string): Promise<Post[]> => {
+// GetPublishedPostsResponse 로 타입 지정
+export const getPublishedPosts = async ({tag, sort, pageSize = 2, startCursor}: GetPublishedPostsParams): Promise<GetPublishedPostsResponse> => {
   const response = await notion.databases.query({
     database_id: process.env.NOTION_DATABASE_ID!,
     filter: {
@@ -120,15 +133,26 @@ export const getPublishedPosts = async (tag?: string, sort?: string): Promise<Po
         direction: sort === 'latest' ? 'descending' : 'ascending',
       },
     ],
+    page_size: pageSize,
+    start_cursor: startCursor,
   });
 
-  return response.results
+  console.log(response);
+
+  const posts = response.results
     .filter((page): page is PageObjectResponse => 'properties' in page)
     .map(getPostMetadata);
+
+  return {
+    posts,
+    hasMore: response.has_more,
+    nextCursor: response.next_cursor,
+  };
 };
 
 export const getTags = async (): Promise<TagFilterItem[]> => {
-  const posts = await getPublishedPosts();
+  // pageSize 를 2로 설정하면 태그목록에서 2개에 대한 것만 가져오기 때문에 100개로 설정
+  const { posts } = await getPublishedPosts({ pageSize: 100 });
 
   // 모든 태그를 추출하고 각 태그의 출현 횟수를 계산
   const tagCount = posts.reduce(
