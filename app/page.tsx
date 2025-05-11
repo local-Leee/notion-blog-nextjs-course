@@ -1,6 +1,6 @@
 import { ProfileSection } from '@/app/_components/ProfileSection';
 import { ContactSection } from '@/app/_components/ContactSection';
-import { getTags } from '@/lib/notion';
+import { getTags, getPublishedPosts } from '@/lib/notion';
 import { HeaderSection } from '@/app/_components/HeaderSection';
 import PostListSuspense from '@/components/features/blog/PostListSuspense';
 import { Suspense } from 'react';
@@ -9,18 +9,21 @@ import TagSectionSkeleton from '@/app/_components/TagSectionSkeleton';
 import PostListSkeleton from '@/components/features/blog/PostListSkeleton';
 
 interface HomeProps {
-  // searchParams는 클라이언트에서 전달되는 쿼리 파라미터를 받는다.
-  searchParams: Promise<{ tag?: string; sort?: string }>;
+  searchParams: { tag?: string; sort?: string };
 }
-  
+
 export default async function Home({ searchParams }: HomeProps) {
-  const { tag, sort } = await searchParams;
+  const { tag, sort } = searchParams;
   const selectedTag = tag || '전체';
   const selectedSort = sort || 'latest';
 
   // 태그 목록을 가져온다.
   // 이것도 블로그 목록을 가져온 후에 태그 정보를 추출하기 때문에 Suspense 처리를 해준다.
   const tags = getTags();
+
+  // 초기 블로그 목록은 서버에서 가져오기 시작할 것이다.
+  // promise 객체로 포스트 목록, hasMore, nextCursor 를 가져온다.
+  const postsPromise = getPublishedPosts({ tag: selectedTag, sort: selectedSort });
 
   return (
     <div className="container py-8">
@@ -36,7 +39,7 @@ export default async function Home({ searchParams }: HomeProps) {
           <HeaderSection selectedTag={selectedTag} />
           {/* 블로그 카드 그리드 */}
           <Suspense fallback={<PostListSkeleton />}>
-            <PostListSuspense selectedTag={selectedTag} selectedSort={selectedSort} />
+            <PostListSuspense postsPromise={postsPromise} />
           </Suspense>
         </div>
         {/* 우측 사이드바 */}

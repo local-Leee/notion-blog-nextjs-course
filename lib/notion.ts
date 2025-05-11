@@ -89,13 +89,13 @@ export const getPostBySlug = async (
   // return getPageMetadata(response);
 };
 
-interface GetPublishedPostsParams {
+export interface GetPublishedPostsParams {
   tag?: string;
   sort?: string;
   pageSize?: number;
   startCursor?: string;
 }
-interface GetPublishedPostsResponse {
+export interface GetPublishedPostsResponse {
   posts: Post[];
   hasMore: boolean;
   nextCursor: string | null;
@@ -103,7 +103,12 @@ interface GetPublishedPostsResponse {
 
 // 게시글 목록을 가져오는 함수
 // GetPublishedPostsResponse 로 타입 지정
-export const getPublishedPosts = async ({tag, sort, pageSize = 2, startCursor}: GetPublishedPostsParams): Promise<GetPublishedPostsResponse> => {
+export const getPublishedPosts = async ({
+  tag = '전체',
+  sort = 'latest',
+  pageSize = 2,
+  startCursor,
+}: GetPublishedPostsParams): Promise<GetPublishedPostsResponse> => {
   const response = await notion.databases.query({
     database_id: process.env.NOTION_DATABASE_ID!,
     filter: {
