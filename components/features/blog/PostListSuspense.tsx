@@ -2,11 +2,13 @@
 
 import Link from 'next/link';
 import { PostCard } from '@/components/features/blog/PostCard';
-import { Button } from '@/components/ui/button';
+import { Loader2 } from 'lucide-react';
 import { GetPublishedPostsResponse } from '@/lib/notion';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'next/navigation';
-import { use } from 'react';
+import { use, useEffect } from 'react';
+// useInView : 요소가 화면에 보이는지 확인하는 훅
+import { useInView } from 'react-intersection-observer';
 
 interface PostListProps {
   postsPromise: Promise<GetPublishedPostsResponse>;
@@ -55,14 +57,34 @@ export default function PostList({ postsPromise }: PostListProps) {
     },
   });
 
+  // 관찰하고 싶은 돔에 연결하는 객체 
+  // ㄴ 그리고 해당요소가 뷰포트에 보이면 true 아니면 false 반환
+  // ㄴ 감지가 된다면 inView 변수에 true 값이 들어옴
+  const { ref, inView } = useInView(
+    // 옵션 객체
+    {
+      // 요소가 뷰포트에 보이는 시점을 지정
+      threshold: 0,
+    }
+  );
+
   // 더보기 버튼 클릭 시 다음 페이지를 요청하는 함수
-  const handleLoadMore = () => {
-    // 다음페이지가 있고, 다음 페이지가 로딩 중이 아니라면 
-    if (hasNextPage && !isFetchingNextPage) {
-      // 다음 페이지를 요청
+  // const handleLoadMore = () => {
+  //   // 다음페이지가 있고, 다음 페이지가 로딩 중이 아니라면 
+  //   if (hasNextPage && !isFetchingNextPage) {
+  //     // 다음 페이지를 요청
+  //     fetchNextPage();
+  //   }
+  // };
+
+  // useEffect 훅을 사용하여 inView 변수가 true 값이 들어오면 다음 페이지를 요청
+  useEffect(() => {
+    console.log('inView', inView);
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      // 인뷰가 보일 때 즉, 툴일 때만 fetchNextpage를 조회하면 ㅋ된다.
       fetchNextPage();
     }
-  };
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const allPosts = data?.pages.flatMap((page) => page.posts) ?? [];
 
@@ -75,7 +97,15 @@ export default function PostList({ postsPromise }: PostListProps) {
           </Link>
         ))}
       </div>
-      {hasNextPage && (
+      {/* ref 속성은 관찰하고 싶은 요소를 지정하는 속성 */}
+      {hasNextPage && !isFetchingNextPage && <div ref={ref} className="h-10" />}
+      {isFetchingNextPage && (
+        <div className="flex items-center justify-center gap-2 py-4">
+          <Loader2 className="text-muted-foreground h-4 w-4 animate-spin" />
+          <span className="text-muted-foreground text-sm">로딩중...</span>
+        </div>
+      )}
+      {/* {hasNextPage && (
         <div>
           <Button
             variant="outline"
@@ -87,7 +117,7 @@ export default function PostList({ postsPromise }: PostListProps) {
             {isFetchingNextPage ? '로딩중...' : '더보기'}
           </Button>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
