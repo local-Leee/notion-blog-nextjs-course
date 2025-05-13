@@ -1,10 +1,6 @@
 import type { NextConfig } from 'next';
 import createMDX from '@next/mdx';
 
-console.log('process.env.NODE_ENV: ', process.env.NODE_ENV);
-console.log('process.env.ENV_NAME: ', process.env.ENV_NAME);
-console.log('process.env.LOCAL_ENV_NAME: ', process.env.LOCAL_ENV_NAME);
-
 import remarkGfm from 'remark-gfm';
 const nextConfig: NextConfig = {
   /* config options here */
@@ -21,6 +17,9 @@ const nextConfig: NextConfig = {
       },
       {
         hostname: 'prod-files-secure.s3.us-west-2.amazonaws.com',
+      },
+      {
+        hostname: 'www.notion.so', // 도메인 추가(노션 커버이미지 사용 시 에러 방지)
       },
     ],
   },
