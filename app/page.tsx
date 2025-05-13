@@ -9,11 +9,11 @@ import TagSectionSkeleton from '@/app/_components/TagSectionSkeleton';
 import PostListSkeleton from '@/components/features/blog/PostListSkeleton';
 
 interface HomeProps {
-  searchParams: { tag?: string; sort?: string };
+  searchParams: Promise<{ tag?: string; sort?: string }>;
 }
 
 export default async function Home({ searchParams }: HomeProps) {
-  const { tag, sort } = searchParams;
+  const { tag, sort } = await searchParams;
   const selectedTag = tag || '전체';
   const selectedSort = sort || 'latest';
 
