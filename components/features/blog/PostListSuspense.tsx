@@ -79,7 +79,6 @@ export default function PostList({ postsPromise }: PostListProps) {
 
   // useEffect 훅을 사용하여 inView 변수가 true 값이 들어오면 다음 페이지를 요청
   useEffect(() => {
-    console.log('inView', inView);
     if (inView && hasNextPage && !isFetchingNextPage) {
       // 인뷰가 보일 때 즉, 툴일 때만 fetchNextpage를 조회하면 ㅋ된다.
       fetchNextPage();
