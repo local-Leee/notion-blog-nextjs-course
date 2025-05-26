@@ -152,7 +152,12 @@ export const getPublishedPosts = unstable_cache(async ({
     hasMore: response.has_more,
     nextCursor: response.next_cursor,
   };
-});
+},
+['posts'],
+{
+  tags: ['posts'],
+}
+);
 
 export const getTags = async (): Promise<TagFilterItem[]> => {
   // pageSize 를 2로 설정하면 태그목록에서 2개에 대한 것만 가져오기 때문에 100개로 설정

@@ -9,7 +9,16 @@ import { Loader2 } from 'lucide-react';
 import { useActionState } from 'react';
 import { createPostAction } from '@/app/actions/blog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 export function PostForm() {
+  // 리액트 쿼리 클라이언트 인스턴스 생성
+  const queryClient = useQueryClient();
+
+  // useRouter 인스턴스 생성
+  const router = useRouter();
+
   // useActionState을 통해서 서버 액션 호출
   const [state, formAction, isPending] = useActionState(createPostAction, {
     message: '',
@@ -20,6 +29,16 @@ export function PostForm() {
       content: '',
     },
   });
+
+  // success가 true 라면 리액트 쿼리의 캐시를 무효화하고 메인으로 이동하는 코드
+  useEffect(() => {
+    if (state?.success) {
+      // invalidateQueries 메서드는 캐시에 있는 데이터를 무효화하는 메서드
+      // queryKey는 캐시에 있는 데이터의 키 값
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      router.push('/');
+    }
+  }, [state, queryClient, router]);
 
   return (
     <form action={formAction}>
