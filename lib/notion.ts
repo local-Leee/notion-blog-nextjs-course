@@ -190,3 +190,57 @@ export const getTags = async (): Promise<TagFilterItem[]> => {
 
   return [allTag, ...sortedTags];
 };
+
+
+// 타이틀과 태그와 컨텐츠를 등록할 수 있도록 타입 정의
+export interface CreatePostParams {
+  title: string;
+  tag: string;
+  content: string;
+}
+
+// 파라미터로 타이틀, 태그, 컨텐츠를 입력받아 하나의 노션 페이지를 작성하는 함수
+export const createPost = async ({title, tag, content}: CreatePostParams) => {
+
+  // notion.pages.create 메서드를 사용하여 새로운 페이지를 생성
+  const response = await notion.pages.create({
+    parent:{
+      database_id: process.env.NOTION_DATABASE_ID!,
+    },
+    properties:{
+      Title:{
+        title:[
+          {
+            text:{
+              content: title,
+            }
+          }
+        ]
+      },
+      Description:{
+        rich_text:[
+          {
+            text:{
+              content: content,
+            }
+          }
+        ]
+      },
+      Tags: {
+        multi_select: [{ name: tag }],
+      },
+      Status: {
+        select: {
+          name: 'Published',
+        },
+      },
+      Date:{
+        date:{
+          start: new Date().toISOString(),
+        }
+      }
+    }
+  });
+
+  return response;
+}
