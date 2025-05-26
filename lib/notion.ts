@@ -5,7 +5,7 @@ import type {
   PersonUserObjectResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 import { NotionToMarkdown } from 'notion-to-md';
-
+import { unstable_cache } from 'next/cache';
 export const notion = new Client({
   auth: process.env.NOTION_TOKEN,
 });
@@ -103,12 +103,13 @@ export interface GetPublishedPostsResponse {
 
 // 게시글 목록을 가져오는 함수
 // GetPublishedPostsResponse 로 타입 지정
-export const getPublishedPosts = async ({
+export const getPublishedPosts = unstable_cache(async ({
   tag = '전체',
   sort = 'latest',
   pageSize = 2,
   startCursor,
 }: GetPublishedPostsParams): Promise<GetPublishedPostsResponse> => {
+  console.log('getPublishedPosts'); // 태그와 메인페이지때문에 2번 호출된다
   const response = await notion.databases.query({
     database_id: process.env.NOTION_DATABASE_ID!,
     filter: {
@@ -151,7 +152,12 @@ export const getPublishedPosts = async ({
     hasMore: response.has_more,
     nextCursor: response.next_cursor,
   };
-};
+},
+['posts'],
+{
+  tags: ['posts'],
+}
+);
 
 export const getTags = async (): Promise<TagFilterItem[]> => {
   // pageSize 를 2로 설정하면 태그목록에서 2개에 대한 것만 가져오기 때문에 100개로 설정
@@ -188,3 +194,57 @@ export const getTags = async (): Promise<TagFilterItem[]> => {
 
   return [allTag, ...sortedTags];
 };
+
+
+// 타이틀과 태그와 컨텐츠를 등록할 수 있도록 타입 정의
+export interface CreatePostParams {
+  title: string;
+  tag: string;
+  content: string;
+}
+
+// 파라미터로 타이틀, 태그, 컨텐츠를 입력받아 하나의 노션 페이지를 작성하는 함수
+export const createPost = async ({title, tag, content}: CreatePostParams) => {
+
+  // notion.pages.create 메서드를 사용하여 새로운 페이지를 생성
+  const response = await notion.pages.create({
+    parent:{
+      database_id: process.env.NOTION_DATABASE_ID!,
+    },
+    properties:{
+      Title:{
+        title:[
+          {
+            text:{
+              content: title,
+            }
+          }
+        ]
+      },
+      Description:{
+        rich_text:[
+          {
+            text:{
+              content: content,
+            }
+          }
+        ]
+      },
+      Tags: {
+        multi_select: [{ name: tag }],
+      },
+      Status: {
+        select: {
+          name: 'Published',
+        },
+      },
+      Date:{
+        date:{
+          start: new Date().toISOString(),
+        }
+      }
+    }
+  });
+
+  return response;
+}

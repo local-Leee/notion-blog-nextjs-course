@@ -24,9 +24,15 @@ const eslintConfig = [
     },
     rules: {
       // 여기에 추가적인 규칙을 설정할 수 있습니다
-      'no-unused-vars': 'warn',
+      'no-unused-vars': [
+        'warn',
+        {
+          // 함수 파라미터에서 미사용 벼수 검사 비활성화 하겠다
+          args: 'none',
+        },
+      ],
       // 콘솔 사용 시 경고
-      'no-console': 'warn',
+      // 'no-console': 'warn',
     },
   },
   eslintConfigPrettier,
