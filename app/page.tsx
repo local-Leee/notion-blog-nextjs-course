@@ -7,6 +7,8 @@ import { Suspense } from 'react';
 import { TagSectionClient } from '@/app/_components/TagSection.client';
 import TagSectionSkeleton from '@/app/_components/TagSectionSkeleton';
 import PostListSkeleton from '@/components/features/blog/PostListSkeleton';
+import { PostList } from '@/components/features/blog/PostList';
+
 
 interface HomeProps {
   searchParams: Promise<{ tag?: string; sort?: string }>;
@@ -23,7 +25,7 @@ export default async function Home({ searchParams }: HomeProps) {
 
   // 초기 블로그 목록은 서버에서 가져오기 시작할 것이다.
   // promise 객체로 포스트 목록, hasMore, nextCursor 를 가져온다.
-  const postsPromise = getPublishedPosts({ tag: selectedTag, sort: selectedSort });
+  const postsPromise = await getPublishedPosts({ tag: selectedTag, sort: selectedSort });
 
   return (
     <div className="container py-8">
@@ -38,9 +40,10 @@ export default async function Home({ searchParams }: HomeProps) {
           {/* 섹션 제목 */}
           <HeaderSection selectedTag={selectedTag} />
           {/* 블로그 카드 그리드 */}
-          <Suspense fallback={<PostListSkeleton />}>
+          {/* <Suspense fallback={<PostListSkeleton />}>
             <PostListSuspense postsPromise={postsPromise} />
-          </Suspense>
+          </Suspense> */}
+          <PostList posts={postsPromise.posts} />
         </div>
         {/* 우측 사이드바 */}
         <aside className="flex flex-col gap-6">

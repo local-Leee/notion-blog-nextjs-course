@@ -5,7 +5,7 @@ import type {
   PersonUserObjectResponse,
 } from '@notionhq/client/build/src/api-endpoints';
 import { NotionToMarkdown } from 'notion-to-md';
-
+import { unstable_cache } from 'next/cache';
 export const notion = new Client({
   auth: process.env.NOTION_TOKEN,
 });
@@ -103,12 +103,13 @@ export interface GetPublishedPostsResponse {
 
 // 게시글 목록을 가져오는 함수
 // GetPublishedPostsResponse 로 타입 지정
-export const getPublishedPosts = async ({
+export const getPublishedPosts = unstable_cache(async ({
   tag = '전체',
   sort = 'latest',
   pageSize = 2,
   startCursor,
 }: GetPublishedPostsParams): Promise<GetPublishedPostsResponse> => {
+  console.log('getPublishedPosts'); // 태그와 메인페이지때문에 2번 호출된다
   const response = await notion.databases.query({
     database_id: process.env.NOTION_DATABASE_ID!,
     filter: {
@@ -142,8 +143,6 @@ export const getPublishedPosts = async ({
     start_cursor: startCursor,
   });
 
-  console.log(response);
-
   const posts = response.results
     .filter((page): page is PageObjectResponse => 'properties' in page)
     .map(getPostMetadata);
@@ -153,7 +152,7 @@ export const getPublishedPosts = async ({
     hasMore: response.has_more,
     nextCursor: response.next_cursor,
   };
-};
+});
 
 export const getTags = async (): Promise<TagFilterItem[]> => {
   // pageSize 를 2로 설정하면 태그목록에서 2개에 대한 것만 가져오기 때문에 100개로 설정

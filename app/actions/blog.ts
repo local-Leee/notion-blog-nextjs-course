@@ -3,7 +3,8 @@
 
 import { createPost } from '@/lib/notion';
 import { z } from 'zod';
-
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 // zod 사용하기 위해 스키마 정의한다.
 // FormData라는 객체를 받았기 때문에 PostData의 스키마 검사를 위해서 post 스키마를 적용하고 Post 안에는 Title, tag, content 적용
 // 각 필드마다 예상되는 타입과 제약 조건을 설정할 수 있다.
@@ -74,16 +75,12 @@ export async function createPostAction(prevState: PostFormState, formData: FormD
       tag: tag,
       content: content,
     });
-
-    return {
-      message: '블로그 포스트가 성공적으로 등록되었습니다.',
-    }
   } catch (err) {
-    // 에러 로그 출력
-    console.error(err);
     return {
       message: '블로그 포스트 등록에 실패했습니다.',
       formData: rawFormData,
     };
   }
+  revalidatePath('/blog');
+  redirect('/');
 }
