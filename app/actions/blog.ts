@@ -46,6 +46,7 @@ export async function createPostAction(
   // rawFormData 객체 형태로 데이터를 받아서 유효성 검사를 실행
   const validatedFields = postSchema.safeParse(rawFormData);
 
+  // 유효성 검사 실패 시 오류 메시지 반환
   if (!validatedFields.success) {
     return {
       // flatten(): 중첩된 오류 구조를 평탄화하여 필드별로 오류 메시지 배열을 제공하는 메서드
