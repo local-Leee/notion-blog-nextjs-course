@@ -2,6 +2,7 @@
 
 // Giscus를 사용하기 위해 설치한 패키지를 import 해준다.
 import Giscus from '@giscus/react';
+import { useTheme } from 'next-themes';
 
 {/* <script src="https://giscus.app/client.js"
         data-repo="local-Leee/notion-blog-nextjs-giscus"
@@ -20,6 +21,7 @@ import Giscus from '@giscus/react';
 </script> */}
 
 export default function GiscusComments() {
+  const { theme } = useTheme();
   return (
     // Giscus에 가져온 <script> 태그를 넣어준다.    
     <Giscus
@@ -32,7 +34,7 @@ export default function GiscusComments() {
         reactions-enabled="1"
         emit-metadata="0"
         input-position="top"
-        theme="preferred_color_scheme"
+        theme={theme === 'dark' ? 'dark' : 'light'}
         lang="ko"
         loading="lazy"
     />
