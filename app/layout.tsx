@@ -26,16 +26,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth" suppressHydrationWarning> {/* suppressHydrationWarning : 테마 변경 시 새로고침 방지. */}
+    <html lang="en" className="scroll-smooth" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
-        {/* min-h-screen으로 전체 높이 보장, grid로 3개 영역 분할 */}
-        <div className="flex min-h-screen flex-col">
-          {/* Header 영역 */}
-          <Header />
-          {/* Main 영역 */}
-          <main className="flex-1">{children}</main>
-          {/* Footer 영역 */}
+          {/* min-h-screen으로 전체 높이 보장, grid로 3개 영역 분할 */}
+          <div className="flex min-h-screen flex-col">
+            {/* Header 영역 */}
+            <Header />
+            {/* Main 영역 */}
+            <main className="flex-1">{children}</main>
+            {/* Footer 영역 */}
             <Footer />
           </div>
         </Providers>

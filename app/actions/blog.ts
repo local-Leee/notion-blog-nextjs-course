@@ -31,16 +31,11 @@ export interface PostFormState {
   success?: boolean;
 }
 
-// 서버 액션
-export async function createPostAction(prevState: PostFormState, formData: FormData) {
-  //폼 데이터 추출
-  // const title = formData.get('title') as string;
-  // const tag = formData.get('tag') as string;
-  // const content = formData.get('content') as string;
-
-  // const {title, tag, content} = Object.fromEntries(formData);
-
-  // 폼 데이터 추출
+// 서버 액션, 폼 데이터를 받아서 유효성 검사를 실행하고 데이터를 등록하는 함수
+export async function createPostAction(
+  state: PostFormState,
+  formData: FormData
+): Promise<PostFormState> {
   const rawFormData = {
     title: formData.get('title') as string,
     tag: formData.get('tag') as string,
@@ -51,7 +46,6 @@ export async function createPostAction(prevState: PostFormState, formData: FormD
   // rawFormData 객체 형태로 데이터를 받아서 유효성 검사를 실행
   const validatedFields = postSchema.safeParse(rawFormData);
 
-  // 유효성 검사 실패 시 오류 메시지 반환
   if (!validatedFields.success) {
     return {
       // flatten(): 중첩된 오류 구조를 평탄화하여 필드별로 오류 메시지 배열을 제공하는 메서드
@@ -62,29 +56,29 @@ export async function createPostAction(prevState: PostFormState, formData: FormD
     };
   }
 
-  // 에러가 발생할 수 있기에 try catch 사용
   try {
     // 유효성 검사 성공 시 반환된 데이터 추출
     const { title, tag, content } = validatedFields.data;
-
     //데이터 등록
     // 타입이 보장된 데이터를 받았기 때문에 형변환이 필요없다.
     await createPost({
-      title: title,
-      tag: tag,
-      content: content,
+      title,
+      tag,
+      content,
     });
 
     revalidateTag('posts');
     return {
       success: true,
       message: '블로그 포스트가 성공적으로 등록되었습니다.',
+      errors: {},
     };
   } catch (err) {
     console.error(err);
     return {
       message: '블로그 포스트 등록에 실패했습니다.',
       formData: rawFormData,
+      errors: {},
     };
   }
 }
