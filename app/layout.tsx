@@ -26,7 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="scroll-smooth">
+    <html lang="en" className="scroll-smooth" suppressHydrationWarning> {/* suppressHydrationWarning : 테마 변경 시 새로고침 방지. */}
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
         {/* min-h-screen으로 전체 높이 보장, grid로 3개 영역 분할 */}
