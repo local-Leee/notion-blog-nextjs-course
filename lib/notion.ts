@@ -109,7 +109,7 @@ export interface GetPublishedPostsResponse {
   nextCursor: string | null;
 }
 
-// 게시글 목록을 가져오는 함수
+// 게시글 목록을 가져오는 함수, 태그와 메인페이지때문에 2번 호출된다
 // GetPublishedPostsResponse 로 타입 지정
 export const getPublishedPosts = unstable_cache(
   async ({
@@ -118,7 +118,6 @@ export const getPublishedPosts = unstable_cache(
     pageSize = 2,
     startCursor,
   }: GetPublishedPostsParams): Promise<GetPublishedPostsResponse> => {
-    console.log('getPublishedPosts'); // 태그와 메인페이지때문에 2번 호출된다
     const response = await notion.databases.query({
       database_id: process.env.NOTION_DATABASE_ID!,
       filter: {
