@@ -161,7 +161,7 @@ export const getPublishedPosts = unstable_cache(
       nextCursor: response.next_cursor,
     };
   },
-  ['posts'],
+  undefined,
   {
     tags: ['posts'],
   }
