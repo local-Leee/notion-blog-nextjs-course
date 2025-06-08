@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/api/', '/admin/'],
     },
-    sitemap: `${process.env.NEXT_PUBLIC_APP_URL}/sitemap.xml`,
+    sitemap: 'https://nblog-nextjs-course.vercel.app/sitemap.xml',
   };
 }

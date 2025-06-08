@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     telephone: false,
     address: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://hjlee.dev'),
+  metadataBase: new URL('https://nblog-nextjs-course.vercel.app'),
   alternates: {
     canonical: '/',
   },
