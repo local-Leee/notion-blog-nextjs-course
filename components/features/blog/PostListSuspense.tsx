@@ -19,6 +19,7 @@ export default function PostList({ postsPromise }: PostListProps) {
   const searchParams = useSearchParams();
   const tag = searchParams.get('tag');
   const sort = searchParams.get('sort');
+  const pageSize = 2;
 
   const fetchPosts = async ({ pageParam }: { pageParam: string | undefined }) => {
     const params = new URLSearchParams();
@@ -42,10 +43,10 @@ export default function PostList({ postsPromise }: PostListProps) {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
     // queryKey는 쿼리의 고유 식별자.
     // ㄴ 태그나 정렬이 변경되면 다시 쿼리키를 수행
-    queryKey: ['posts', tag, sort],
+    queryKey: ['posts', tag, sort, pageSize],
     // queryFn은 데이터를 실제로 가져오는 비동기 함수
     queryFn: fetchPosts,
-    // initialPageParam은 첫 번째 페이지의 매개변수. 
+    // initialPageParam은 첫 번째 페이지의 매개변수.
     // ㄴ 우리가 사용할 startCursor 라고 보면된다. 초기값은 undefined
     initialPageParam: undefined,
     // getNextPageParam은 다음 페이지를 요청할 때 필요한 파라미터를 결정한다.
@@ -57,7 +58,7 @@ export default function PostList({ postsPromise }: PostListProps) {
     },
   });
 
-  // 관찰하고 싶은 돔에 연결하는 객체 
+  // 관찰하고 싶은 돔에 연결하는 객체
   // ㄴ 그리고 해당요소가 뷰포트에 보이면 true 아니면 false 반환
   // ㄴ 감지가 된다면 inView 변수에 true 값이 들어옴
   const { ref, inView } = useInView(
@@ -70,7 +71,7 @@ export default function PostList({ postsPromise }: PostListProps) {
 
   // 더보기 버튼 클릭 시 다음 페이지를 요청하는 함수
   // const handleLoadMore = () => {
-  //   // 다음페이지가 있고, 다음 페이지가 로딩 중이 아니라면 
+  //   // 다음페이지가 있고, 다음 페이지가 로딩 중이 아니라면
   //   if (hasNextPage && !isFetchingNextPage) {
   //     // 다음 페이지를 요청
   //     fetchNextPage();

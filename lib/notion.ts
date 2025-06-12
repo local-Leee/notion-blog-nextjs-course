@@ -56,7 +56,7 @@ export const getPostBySlug = async (
   slug: string
 ): Promise<{
   markdown: string;
-  post: Post;
+  post: Post | null;
 }> => {
   const response = await notion.databases.query({
     database_id: process.env.NOTION_DATABASE_ID!,
@@ -77,6 +77,14 @@ export const getPostBySlug = async (
       ],
     },
   });
+
+  // response 값이 없을 때 에러처리
+  if (!response.results[0]) {
+    return {
+      markdown: '',
+      post: null,
+    };
+  }
 
   const mdBlocks = await n2m.pageToMarkdown(response.results[0].id);
   const { parent } = n2m.toMarkdownString(mdBlocks);
@@ -101,62 +109,62 @@ export interface GetPublishedPostsResponse {
   nextCursor: string | null;
 }
 
-// 게시글 목록을 가져오는 함수
+// 게시글 목록을 가져오는 함수, 태그와 메인페이지때문에 2번 호출된다
 // GetPublishedPostsResponse 로 타입 지정
-export const getPublishedPosts = unstable_cache(async ({
-  tag = '전체',
-  sort = 'latest',
-  pageSize = 2,
-  startCursor,
-}: GetPublishedPostsParams): Promise<GetPublishedPostsResponse> => {
-  console.log('getPublishedPosts'); // 태그와 메인페이지때문에 2번 호출된다
-  const response = await notion.databases.query({
-    database_id: process.env.NOTION_DATABASE_ID!,
-    filter: {
-      and: [
-        {
-          property: 'Status',
-          select: {
-            equals: 'Published',
+export const getPublishedPosts = unstable_cache(
+  async ({
+    tag = '전체',
+    sort = 'latest',
+    pageSize = 2,
+    startCursor,
+  }: GetPublishedPostsParams): Promise<GetPublishedPostsResponse> => {
+    const response = await notion.databases.query({
+      database_id: process.env.NOTION_DATABASE_ID!,
+      filter: {
+        and: [
+          {
+            property: 'Status',
+            select: {
+              equals: 'Published',
+            },
           },
-        },
-        ...(tag && tag !== '전체'
-          ? [
-              {
-                property: 'Tags',
-                multi_select: {
-                  contains: tag,
+          ...(tag && tag !== '전체'
+            ? [
+                {
+                  property: 'Tags',
+                  multi_select: {
+                    contains: tag,
+                  },
                 },
-              },
-            ]
-          : []),
-      ],
-    },
-    sorts: [
-      {
-        property: 'Date',
-        // 정렬 방식에 따라 정렬 순서를 결정
-        direction: sort === 'latest' ? 'descending' : 'ascending',
+              ]
+            : []),
+        ],
       },
-    ],
-    page_size: pageSize,
-    start_cursor: startCursor,
-  });
+      sorts: [
+        {
+          property: 'Date',
+          // 정렬 방식에 따라 정렬 순서를 결정
+          direction: sort === 'latest' ? 'descending' : 'ascending',
+        },
+      ],
+      page_size: pageSize,
+      start_cursor: startCursor,
+    });
 
-  const posts = response.results
-    .filter((page): page is PageObjectResponse => 'properties' in page)
-    .map(getPostMetadata);
+    const posts = response.results
+      .filter((page): page is PageObjectResponse => 'properties' in page)
+      .map(getPostMetadata);
 
-  return {
-    posts,
-    hasMore: response.has_more,
-    nextCursor: response.next_cursor,
-  };
-},
-['posts'],
-{
-  tags: ['posts'],
-}
+    return {
+      posts,
+      hasMore: response.has_more,
+      nextCursor: response.next_cursor,
+    };
+  },
+  undefined,
+  {
+    tags: ['posts'],
+  }
 );
 
 export const getTags = async (): Promise<TagFilterItem[]> => {
@@ -195,7 +203,6 @@ export const getTags = async (): Promise<TagFilterItem[]> => {
   return [allTag, ...sortedTags];
 };
 
-
 // 타이틀과 태그와 컨텐츠를 등록할 수 있도록 타입 정의
 export interface CreatePostParams {
   title: string;
@@ -204,31 +211,30 @@ export interface CreatePostParams {
 }
 
 // 파라미터로 타이틀, 태그, 컨텐츠를 입력받아 하나의 노션 페이지를 작성하는 함수
-export const createPost = async ({title, tag, content}: CreatePostParams) => {
-
+export const createPost = async ({ title, tag, content }: CreatePostParams) => {
   // notion.pages.create 메서드를 사용하여 새로운 페이지를 생성
   const response = await notion.pages.create({
-    parent:{
+    parent: {
       database_id: process.env.NOTION_DATABASE_ID!,
     },
-    properties:{
-      Title:{
-        title:[
+    properties: {
+      Title: {
+        title: [
           {
-            text:{
+            text: {
               content: title,
-            }
-          }
-        ]
+            },
+          },
+        ],
       },
-      Description:{
-        rich_text:[
+      Description: {
+        rich_text: [
           {
-            text:{
+            text: {
               content: content,
-            }
-          }
-        ]
+            },
+          },
+        ],
       },
       Tags: {
         multi_select: [{ name: tag }],
@@ -238,13 +244,13 @@ export const createPost = async ({title, tag, content}: CreatePostParams) => {
           name: 'Published',
         },
       },
-      Date:{
-        date:{
+      Date: {
+        date: {
           start: new Date().toISOString(),
-        }
-      }
-    }
+        },
+      },
+    },
   });
 
   return response;
-}
+};
